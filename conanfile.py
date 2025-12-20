@@ -182,13 +182,13 @@ class MPUnitsConan(ConanFile):
     def _run_clang_tidy(self):
         return bool(self.conf.get("user.mp-units.analyze:clang-tidy", default=False))
 
-    def set_version(self):
-        content = load(self, os.path.join(
-            self.recipe_folder, "src/CMakeLists.txt"))
-        version = re.search(
-            r"project\([^\)]+VERSION (\d+\.\d+\.\d+)[^\)]*\)", content
-        ).group(1)
-        self.version = version.strip()
+    # def set_version(self):
+    #     content = load(self, os.path.join(
+    #         self.recipe_folder, "src/CMakeLists.txt"))
+    #     version = re.search(
+    #         r"project\([^\)]+VERSION (\d+\.\d+\.\d+)[^\)]*\)", content
+    #     ).group(1)
+    #     self.version = version.strip()
 
     def config_options(self):
         for key in self._option_feature_map.keys():

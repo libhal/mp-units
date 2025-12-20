@@ -7,3 +7,5 @@ Changes are:
 
 - Set `freestanding: True` as default in the `conanfile.py`.
 - Replaced `.github/` with the standard libhal upload.
+- Comment out `set_version()` and rely on the version passed at conan build
+  time.
