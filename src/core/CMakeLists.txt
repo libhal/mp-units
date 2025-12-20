@@ -144,6 +144,8 @@ if(MP_UNITS_BUILD_CXX_MODULES)
     endif()
 endif()
 
+target_compile_definitions(mp-units-core PUBLIC _LIBCPP_HAS_WIDE_CHARACTERS=0)
+
 if(CMAKE_CXX_MODULE_STD)
     target_compile_definitions(mp-units-core ${MP_UNITS_TARGET_SCOPE} MP_UNITS_IMPORT_STD)
     # https://github.com/llvm/llvm-project/issues/75057

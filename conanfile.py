@@ -72,6 +72,7 @@ class MPUnitsConan(ConanFile):
         "contracts": "none",  # libhal modification: set to "none"
         "freestanding": True,  # libhal modification: set to True
         "natural_units": True,
+        "std_format": False,
     }
     implements = ["auto_header_only"]
     exports = "LICENSE.md"

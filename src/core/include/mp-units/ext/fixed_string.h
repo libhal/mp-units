@@ -299,8 +299,10 @@ template<std::size_t N>
 struct std::hash<mp_units::fixed_u16string<N>> : std::hash<std::u16string_view> {};
 template<std::size_t N>
 struct std::hash<mp_units::fixed_u32string<N>> : std::hash<std::u32string_view> {};
+// LIBHAL: Work around for LLVM gating wstring_view behind
+//         _LIBCPP_HAS_WIDE_CHARACTERS
 template<std::size_t N>
-struct std::hash<mp_units::fixed_wstring<N>> : std::hash<std::wstring_view> {};
+struct std::hash<mp_units::fixed_wstring<N>> : std::hash<std::basic_string_view<wchar_t>> {};
 
 #if MP_UNITS_HOSTED
 // formatting support
