@@ -69,8 +69,8 @@ class MPUnitsConan(ConanFile):
         # "std_format" default set in config_options()
         # "no_crtp" default set in config_options()
         "import_std": False,  # still experimental in CMake
-        "contracts": "gsl-lite",
-        "freestanding": False,
+        "contracts": "none",  # libhal modification: set to "none"
+        "freestanding": True,  # libhal modification: set to True
         "natural_units": True,
     }
     implements = ["auto_header_only"]
@@ -183,7 +183,8 @@ class MPUnitsConan(ConanFile):
         return bool(self.conf.get("user.mp-units.analyze:clang-tidy", default=False))
 
     def set_version(self):
-        content = load(self, os.path.join(self.recipe_folder, "src/CMakeLists.txt"))
+        content = load(self, os.path.join(
+            self.recipe_folder, "src/CMakeLists.txt"))
         version = re.search(
             r"project\([^\)]+VERSION (\d+\.\d+\.\d+)[^\)]*\)", content
         ).group(1)
@@ -278,7 +279,8 @@ class MPUnitsConan(ConanFile):
         else:
             tc.cache_variables["MP_UNITS_API_STD_FORMAT"] = opt.std_format
         tc.cache_variables["MP_UNITS_API_NO_CRTP"] = opt.no_crtp
-        tc.cache_variables["MP_UNITS_API_CONTRACTS"] = str(opt.contracts).upper()
+        tc.cache_variables["MP_UNITS_API_CONTRACTS"] = str(
+            opt.contracts).upper()
         tc.cache_variables["MP_UNITS_API_NATURAL_UNITS"] = opt.natural_units
 
         tc.generate()
@@ -326,19 +328,22 @@ class MPUnitsConan(ConanFile):
                     "MP_UNITS_API_CONTRACTS=0"
                 )
             elif self.options.contracts == "gsl-lite":
-                self.cpp_info.components["core"].requires.append("gsl-lite::gsl-lite")
+                self.cpp_info.components["core"].requires.append(
+                    "gsl-lite::gsl-lite")
                 self.cpp_info.components["core"].defines.append(
                     "MP_UNITS_API_CONTRACTS=2"
                 )
             elif self.options.contracts == "ms-gsl":
-                self.cpp_info.components["core"].requires.append("ms-gsl::ms-gsl")
+                self.cpp_info.components["core"].requires.append(
+                    "ms-gsl::ms-gsl")
                 self.cpp_info.components["core"].defines.append(
                     "MP_UNITS_API_CONTRACTS=3"
                 )
 
             # handle API options
             self.cpp_info.components["core"].defines.append(
-                "MP_UNITS_API_NO_CRTP=" + str(int(self.options.no_crtp == True))
+                "MP_UNITS_API_NO_CRTP=" +
+                str(int(self.options.no_crtp == True))
             )
             self.cpp_info.components["core"].defines.append(
                 "MP_UNITS_API_NATURAL_UNITS="
@@ -347,11 +352,14 @@ class MPUnitsConan(ConanFile):
 
             # handle hosted configuration
             if self.options.freestanding:
-                self.cpp_info.components["core"].defines.append("MP_UNITS_HOSTED=0")
+                self.cpp_info.components["core"].defines.append(
+                    "MP_UNITS_HOSTED=0")
             else:
-                self.cpp_info.components["core"].defines.append("MP_UNITS_HOSTED=1")
+                self.cpp_info.components["core"].defines.append(
+                    "MP_UNITS_HOSTED=1")
                 if not self.options.std_format:
-                    self.cpp_info.components["core"].requires.append("fmt::fmt")
+                    self.cpp_info.components["core"].requires.append(
+                        "fmt::fmt")
                 self.cpp_info.components["core"].defines.append(
                     "MP_UNITS_API_STD_FORMAT="
                     + str(int(self.options.std_format == True))
@@ -359,7 +367,8 @@ class MPUnitsConan(ConanFile):
 
             # handle import std
             if self.options.import_std:
-                self.cpp_info.components["core"].defines.append("MP_UNITS_IMPORT_STD")
+                self.cpp_info.components["core"].defines.append(
+                    "MP_UNITS_IMPORT_STD")
                 if compiler == "clang" and Version(compiler.version) < 19:
                     self.cpp_info.components["core"].cxxflags.append(
                         "-Wno-deprecated-declarations"
@@ -376,4 +385,5 @@ class MPUnitsConan(ConanFile):
                 and Version(compiler.version).major == 20
                 and Version(compiler.version).minor == 1
             ):
-                self.cpp_info.components["core"].cxxflags.append("-Wno-unused-result")
+                self.cpp_info.components["core"].cxxflags.append(
+                    "-Wno-unused-result")
