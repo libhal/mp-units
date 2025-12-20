@@ -21,7 +21,8 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.25)
-project(mp-units VERSION 2.5.0 LANGUAGES CXX)
+# libhal modification: version is now 2.5.0-pre.1
+project(mp-units VERSION 2.5.0-pre.1 LANGUAGES CXX)
 
 set(projectPrefix MP_UNITS_)
 
