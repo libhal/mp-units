@@ -23,7 +23,9 @@ on:
 
 jobs:
   package_and_upload_all_check:
-    uses: libhal/ci/.github/workflows/package_and_upload_all.yml@5.x.y
+    uses: libhal/ci/.github/workflows/package_and_upload_all.yml@add-extra-args
     with:
       modules_support_needed: true
+      extra_conan_arguments: "-o '*:cxx_modules=True' -o '*:freestanding=True' -o '*:contracts=none' -o '*:import_std=False' -o '*:enable_rtti=False'"
+      ci_ref: add-extra-args
     secrets: inherit

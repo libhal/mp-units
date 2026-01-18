@@ -176,3 +176,10 @@ if(MP_UNITS_DEV_TIME_TRACE STREQUAL "ALL")
 elseif(MP_UNITS_DEV_TIME_TRACE STREQUAL "MODULES")
     target_compile_options(mp-units-core PRIVATE "-ftime-trace")
 endif()
+
+# RTTI enable
+if(MP_UNITS_RTTI)
+    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} "-frtti")
+else()
+    target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} "-fno-rtti")
+endif()

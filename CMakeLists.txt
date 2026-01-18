@@ -39,6 +39,7 @@ check_cache_var_values(MP_UNITS_DEV_TIME_TRACE NONE ALL MODULES HEADERS)
 message(STATUS "MP_UNITS_DEV_IWYU: ${MP_UNITS_DEV_IWYU}")
 message(STATUS "MP_UNITS_DEV_CLANG_TIDY: ${MP_UNITS_DEV_CLANG_TIDY}")
 message(STATUS "MP_UNITS_DEV_TIME_TRACE: ${MP_UNITS_DEV_TIME_TRACE}")
+message(STATUS "MP_UNITS_RTTI: ${MP_UNITS_RTTI}")
 
 # make sure that the file is being used as an entry point
 include(modern_project_structure)
