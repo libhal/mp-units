@@ -99,6 +99,7 @@ message(STATUS "MP_UNITS_API_NO_CRTP: ${MP_UNITS_API_NO_CRTP}")
 message(STATUS "MP_UNITS_API_THROWING_CONSTRAINTS: ${MP_UNITS_API_THROWING_CONSTRAINTS}")
 message(STATUS "MP_UNITS_API_FREESTANDING: ${MP_UNITS_API_FREESTANDING}")
 message(STATUS "MP_UNITS_API_CONTRACTS: ${MP_UNITS_API_CONTRACTS}")
+message(STATUS "MP_UNITS_RTTI: ${MP_UNITS_RTTI}")
 
 # validate options
 # third-party contract libraries require a hosted implementation; C++26 contracts are
