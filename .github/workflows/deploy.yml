@@ -24,7 +24,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     uses: libhal/ci/.github/workflows/package_and_upload_all.yml@5.x.y
     with:
-      version: ${{ github.ref_name }}@libhal
+      version: ${{ github.ref_name }}
       remote_url: https://libhal.jfrog.io/artifactory/api/conan/trunk-conan
       modules_support_needed: true
       extra_conan_arguments: -o "*:cxx_modules=True" -o "*:freestanding=True" -o "*:contracts=none" -o "*:import_std=False" -o "*:enable_rtti=False"
