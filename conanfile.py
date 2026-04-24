@@ -350,8 +350,8 @@ class MPUnitsConan(ConanFile):
 
             # handle API options
             self.cpp_info.components["core"].defines.append(
-                "MP_UNITS_API_NO_CRTP=" +
-                str(int(self.options.no_crtp == True))
+                "MP_UNITS_API_NO_CRTP="
+                + str(int(self.options.no_crtp == True))
             )
 
             # handle hosted configuration
