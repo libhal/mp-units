@@ -31,5 +31,6 @@ jobs:
     uses: libhal/ci/.github/workflows/package_and_upload_all.yml@5.x.y
     with:
       modules_support_needed: true
+      llvm_profile: hal/tc/llvm-23
       extra_conan_arguments: -o "*:cxx_modules=True" -o "*:freestanding=True" -o "*:contracts=none" -o "*:import_std=False" -o "*:enable_rtti=False" -c tools.cmake.cmaketoolchain:generator=Ninja
     secrets: inherit
