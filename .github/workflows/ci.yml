@@ -20,6 +20,7 @@ on:
   push:
     branches:
       - libhal
+      - "libhal-*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
