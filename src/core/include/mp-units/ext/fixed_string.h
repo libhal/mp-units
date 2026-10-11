@@ -346,12 +346,15 @@ struct std::hash<mp_units::fixed_u16string<N>> : std::hash<std::u16string_view> 
 template<std::size_t N>
 struct std::hash<mp_units::fixed_u32string<N>> : std::hash<std::u32string_view> {};
 
-// NOTE: We use std::basic_string_view<wchar_t> instead of std::wstring_view because LLVM only makes std::wstring_view
-// available when the macro _LIBCPP_HAS_WIDE_CHARACTERS is set to 1. The `wchar_t` type can continue to be used
-// without that macro definition. To avoid requiring an additional macro, we simply use std::basic_string_view<wchar_t>,
-// which is the underlying definition of std::wstring_view.
+// NOTE: libc++ built without wide character support (e.g. for bare-metal targets) does not define
+// std::char_traits<wchar_t> in LLVM 23+, so even std::basic_string_view<wchar_t> cannot be instantiated.
+// The base class below is not dependent, so it is instantiated eagerly; only declare it when wide
+// characters are available.
+#if !defined(_LIBCPP_VERSION) || (defined(_LIBCPP_HAS_WIDE_CHARACTERS) && _LIBCPP_HAS_WIDE_CHARACTERS) || \
+  (!defined(_LIBCPP_HAS_WIDE_CHARACTERS) && !defined(_LIBCPP_HAS_NO_WIDE_CHARACTERS))
 template<std::size_t N>
 struct std::hash<mp_units::fixed_wstring<N>> : std::hash<std::basic_string_view<wchar_t>> {};
+#endif
 
 #if MP_UNITS_HOSTED
 // formatting support

@@ -214,11 +214,14 @@ target_compile_definitions(
                   MP_UNITS_API_THROWING_CONSTRAINTS=$<BOOL:${MP_UNITS_API_THROWING_CONSTRAINTS}>
 )
 
-if(MP_UNITS_API_FREESTANDING)
+# libhal: apply the freestanding flag only when compiling mp-units itself. Propagating it makes
+# consumers compile with -ffreestanding, and Clang then refuses to import other C++ modules that
+# were not built freestanding (-Wmodule-file-config-mismatch). MP_UNITS_HOSTED=0 still propagates.
+if(MP_UNITS_API_FREESTANDING AND NOT MP_UNITS_TARGET_SCOPE STREQUAL "INTERFACE")
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} /kernel)
+        target_compile_options(mp-units-core PRIVATE /kernel)
     else()
-        target_compile_options(mp-units-core ${MP_UNITS_TARGET_SCOPE} -ffreestanding)
+        target_compile_options(mp-units-core PRIVATE -ffreestanding)
     endif()
 endif()
 
