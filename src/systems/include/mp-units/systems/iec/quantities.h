@@ -22,7 +22,9 @@
 
 #pragma once
 
+#ifndef MP_UNITS_SI_MODULE_IMPORTED
 #include <mp-units/systems/isq/information_science_and_technology.h>
+#endif
 
 MP_UNITS_EXPORT
 namespace mp_units::iec {

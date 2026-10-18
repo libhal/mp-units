@@ -36,8 +36,10 @@
 
 #include <mp-units/bits/module_macros.h>
 #include <mp-units/systems/codata/adopted_values.h>
+#ifndef MP_UNITS_SI_MODULE_IMPORTED
 #include <mp-units/systems/si/constants.h>
 #include <mp-units/systems/si/units.h>
+#endif
 
 #ifndef MP_UNITS_IN_MODULE_INTERFACE
 #include <mp-units/framework/unit.h>

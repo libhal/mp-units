@@ -23,7 +23,9 @@
 #pragma once
 
 #include <mp-units/bits/module_macros.h>
+#ifndef MP_UNITS_SI_MODULE_IMPORTED
 #include <mp-units/systems/si/prefixes.h>
+#endif
 
 // IWYU pragma: begin_exports
 #ifndef MP_UNITS_IN_MODULE_INTERFACE

@@ -25,7 +25,9 @@
 #include <mp-units/bits/module_macros.h>
 #include <mp-units/systems/iec/binary_prefixes.h>
 #include <mp-units/systems/iec/units.h>
+#ifndef MP_UNITS_SI_MODULE_IMPORTED
 #include <mp-units/systems/si/prefixes.h>
+#endif
 
 MP_UNITS_EXPORT
 namespace mp_units::iec::unit_symbols {
