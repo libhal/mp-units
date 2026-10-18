@@ -23,7 +23,9 @@
 #pragma once
 
 #include <mp-units/bits/module_macros.h>
+#ifndef MP_UNITS_SI_MODULE_IMPORTED
 #include <mp-units/systems/si.h>
+#endif
 #include <mp-units/systems/yard_pound.h>
 
 // IWYU pragma: begin_exports

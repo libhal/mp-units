@@ -20,25 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# SI, the ISQ and angular units, also re-exported by mp_units.systems
 add_mp_units_module(
-    systems mp-units-systems
+    si mp-units-si
     DEPENDENCIES mp-units::core
     HEADERS include/mp-units/systems/angular/units.h
-            include/mp-units/systems/codata/adopted_values.h
-            include/mp-units/systems/codata/codata2014.h
-            include/mp-units/systems/codata/codata2014_essential.h
-            include/mp-units/systems/codata/codata2018.h
-            include/mp-units/systems/codata/codata2018_essential.h
-            include/mp-units/systems/codata/codata2022.h
-            include/mp-units/systems/codata/codata2022_essential.h
-            include/mp-units/systems/codata/math_constants.h
-            include/mp-units/systems/hep/constants.h
-            include/mp-units/systems/hep/quantities.h
-            include/mp-units/systems/hep/units.h
-            include/mp-units/systems/iec/binary_prefixes.h
-            include/mp-units/systems/iec/quantities.h
-            include/mp-units/systems/iec/unit_symbols.h
-            include/mp-units/systems/iec/units.h
             include/mp-units/systems/isq/atomic_and_nuclear_physics.h
             include/mp-units/systems/isq/base_quantities.h
             include/mp-units/systems/isq/condensed_matter_physics.h
@@ -57,6 +43,30 @@ add_mp_units_module(
             include/mp-units/systems/si/unit_symbols_essential.h
             include/mp-units/systems/si/units.h
             include/mp-units/systems/angular.h
+            include/mp-units/systems/isq.h
+            include/mp-units/systems/isq_angle.h
+            include/mp-units/systems/si.h
+    MODULE_INTERFACE_UNIT mp-units-si.cpp
+)
+
+add_mp_units_module(
+    systems mp-units-systems
+    DEPENDENCIES mp-units::core mp-units::si
+    HEADERS include/mp-units/systems/codata/adopted_values.h
+            include/mp-units/systems/codata/codata2014.h
+            include/mp-units/systems/codata/codata2014_essential.h
+            include/mp-units/systems/codata/codata2018.h
+            include/mp-units/systems/codata/codata2018_essential.h
+            include/mp-units/systems/codata/codata2022.h
+            include/mp-units/systems/codata/codata2022_essential.h
+            include/mp-units/systems/codata/math_constants.h
+            include/mp-units/systems/hep/constants.h
+            include/mp-units/systems/hep/quantities.h
+            include/mp-units/systems/hep/units.h
+            include/mp-units/systems/iec/binary_prefixes.h
+            include/mp-units/systems/iec/quantities.h
+            include/mp-units/systems/iec/unit_symbols.h
+            include/mp-units/systems/iec/units.h
             include/mp-units/systems/astronomy.h
             include/mp-units/systems/cgs.h
             include/mp-units/systems/codata.h
@@ -66,10 +76,7 @@ add_mp_units_module(
             include/mp-units/systems/iec80000.h
             include/mp-units/systems/imperial.h
             include/mp-units/systems/international.h # deprecated wrapper
-            include/mp-units/systems/isq.h
-            include/mp-units/systems/isq_angle.h
             include/mp-units/systems/natural.h
-            include/mp-units/systems/si.h
             include/mp-units/systems/typographic.h
             include/mp-units/systems/usc.h
             include/mp-units/systems/yard_pound.h
@@ -81,7 +88,7 @@ set_source_files_properties(include/mp-units/systems/international.h PROPERTIES 
 
 if(NOT MP_UNITS_API_FREESTANDING)
     target_sources(
-        mp-units-systems
+        mp-units-si
         PUBLIC FILE_SET
                HEADERS
                BASE_DIRS
@@ -95,5 +102,6 @@ if(NOT MP_UNITS_API_FREESTANDING)
 endif()
 
 if(MP_UNITS_DEV_TIME_TRACE STREQUAL "MODULES")
+    target_compile_options(mp-units-si PRIVATE "-ftime-trace")
     target_compile_options(mp-units-systems PRIVATE "-ftime-trace")
 endif()

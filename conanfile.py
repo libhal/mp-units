@@ -478,7 +478,8 @@ class MPUnitsConan(ConanFile):
             if compiler == "msvc":
                 self.cpp_info.components["core"].cxxflags.append("/utf-8")
 
-            self.cpp_info.components["systems"].requires = ["core"]
+            self.cpp_info.components["si"].requires = ["core"]
+            self.cpp_info.components["systems"].requires = ["core", "si"]
 
             # Add-on representation types and helpers (cartesian/polar vectors, tensors, constrained,
             # safe_int, random) layered above systems; everything beyond the standardizable core.

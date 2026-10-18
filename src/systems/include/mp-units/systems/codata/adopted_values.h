@@ -33,7 +33,9 @@
 // moves to a newer release.
 
 #include <mp-units/bits/module_macros.h>
+#ifndef MP_UNITS_SI_MODULE_IMPORTED
 #include <mp-units/systems/si/units.h>
+#endif
 
 #ifndef MP_UNITS_IN_MODULE_INTERFACE
 #include <mp-units/framework/unit.h>

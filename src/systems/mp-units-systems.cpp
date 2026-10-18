@@ -28,13 +28,17 @@ module;
 export module mp_units.systems;
 
 export import mp_units.core;
+export import mp_units.si;
 #ifdef MP_UNITS_IMPORT_STD
 import std;
 #endif
 
 #define MP_UNITS_IN_MODULE_INTERFACE
+// SI, ISQ and angular come from mp_units.si. Their headers must not be
+// included again here, or their declarations would be attached to this module
+// too, which conflicts with mp_units.si.
+#define MP_UNITS_SI_MODULE_IMPORTED
 
-#include <mp-units/systems/angular.h>
 #include <mp-units/systems/cgs.h>
 #include <mp-units/systems/codata.h>
 #include <mp-units/systems/hep.h>
@@ -43,10 +47,7 @@ import std;
 #include <mp-units/systems/iec80000.h>
 #include <mp-units/systems/imperial.h>
 #include <mp-units/systems/international.h>
-#include <mp-units/systems/isq.h>
-#include <mp-units/systems/isq_angle.h>
 #include <mp-units/systems/natural.h>
-#include <mp-units/systems/si.h>
 #include <mp-units/systems/typographic.h>
 #include <mp-units/systems/usc.h>
 #include <mp-units/systems/yard_pound.h>

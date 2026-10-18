@@ -24,9 +24,11 @@
 
 #include <mp-units/bits/module_macros.h>
 #include <mp-units/systems/iec/quantities.h>
+#ifndef MP_UNITS_SI_MODULE_IMPORTED
 #include <mp-units/systems/isq/electromagnetism.h>
 #include <mp-units/systems/isq/information_science_and_technology.h>
 #include <mp-units/systems/si/units.h>
+#endif
 
 #ifndef MP_UNITS_IN_MODULE_INTERFACE
 #include <mp-units/framework/unit.h>
