@@ -86,6 +86,18 @@ template<typename T>
   return value / value;
 }
 
+// Note from libhal: this and `scale_fp_for()` below were immediately-invoked lambdas. They are
+// named functions to avoid the LLVM 23 LTO bug described above `compare_in_common_type_fallback()`
+// in `quantity.h`.
+template<typename T, typename D, typename Q>
+[[nodiscard]] constexpr auto div_remainder(const T& dividend, const D& divisor, const Q& quot)
+{
+  if constexpr (requires { dividend % divisor; })
+    return dividend % divisor;
+  else
+    return dividend - quot * divisor;
+}
+
 /**
  * @brief Integer division with the quotient rounded according to @c Mode
  */
@@ -106,12 +118,7 @@ template<rounding_mode Mode, typename T, typename D>
     // `%` is optional for a `RealScalar` though, so the subtraction stays as the general form: it
     // needs only the arithmetic the concept mandates, which is what the emulated 128-bit integer
     // and any other representation type without `%` rely on.
-    const auto rem = [&] {
-      if constexpr (requires { dividend % divisor; })
-        return dividend % divisor;
-      else
-        return dividend - quot * divisor;
-    }();
+    const auto rem = div_remainder(dividend, divisor, quot);
     using rem_type = std::remove_const_t<decltype(rem)>;
     const rem_type no_rem = get_zero(rem);
     if constexpr (Mode == rounding_mode::rounded_down)
@@ -232,6 +239,15 @@ template<auto M, rounding_mode Mode, typename T>
   }
 }
 
+template<typename To, UnitMagnitude M, typename From>
+[[nodiscard]] constexpr auto scale_fp_for(const From& value)
+{
+  if constexpr (treat_as_integral<value_type_t<From>> || !std::floating_point<value_type_t<From>>)
+    return scale_fp<M{}>(static_cast<To>(value));
+  else
+    return scale_fp<M{}>(value);
+}
+
 template<typename To, rounding_mode Mode, UnitMagnitude M, typename From>
   requires UnitMagnitudeScalable<From>
 [[nodiscard]] constexpr auto scale_impl(M m, const From& value)
@@ -255,12 +271,7 @@ template<typename To, rounding_mode Mode, UnitMagnitude M, typename From>
     //    To could overflow the wrapper's narrow rep (e.g. scaled_integer<int,P<-25>>
     //    times itself yields P<-50>, which cannot be downshifted to P<-15> within
     //    a 32-bit int).  Converting to To first keeps all arithmetic in To's type.
-    const auto scaled = [&] {
-      if constexpr (treat_as_integral<value_type_t<From>> || !std::floating_point<value_type_t<From>>)
-        return scale_fp<M{}>(static_cast<To>(value));
-      else
-        return scale_fp<M{}>(value);
-    }();
+    const auto scaled = scale_fp_for<To, M>(value);
     // A floating-point destination represents the scaled value with at most half ULP error
     // (`rounded` semantics, the only policy valid for it), so rounding applies only when the
     // destination is integral and a mode other than the `silent_cast` truncation is requested.

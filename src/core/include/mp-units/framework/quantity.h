@@ -299,22 +299,33 @@ template<typename Q1, typename Q2, typename Cmp>
   }
 }
 
+// Note from libhal: this used to be a lambda inside `compare_in_common_type()`. LLVM 23 (seen
+// with clang 23.1.2, 85ac560262434c9ccfc0c183ec22d4138ed647fb) emits a broken module under full
+// LTO with `-g` when a function template holding a lambda is instantiated both in a module unit
+// and in a TU that imports that module unit: "invalid retained nodes, retained node does not
+// belong to subprogram". `ld.lld` aborts the link ("Broken module found"); Apple's ld64 only warns
+// and strips the debug info. libhal hit it with `-std=c++23 -stdlib=libc++ -flto -g -Os
+// -fsanitize=address` on Linux x86_64 and arm64, where a module unit and its unit test both
+// compared `quantity<si::hertz, unsigned>` values. LLVM 22.1.8 is not affected. A named function
+// has no local type for the linker to merge, so it avoids the bug. Like the lambda, it is called
+// from either branch below, so there is still no fallthrough `return` for MSVC Debug C4702.
+template<typename Q1, typename Q2, typename Cmp>
+[[nodiscard]] constexpr auto compare_in_common_type_fallback(const Q1& lhs, const Q2& rhs, Cmp cmp)
+{
+  using ct = std::common_type_t<Q1, Q2>;
+  const ct ct_lhs(lhs);
+  const ct ct_rhs(rhs);
+  MP_UNITS_DIAGNOSTIC_PUSH
+  MP_UNITS_DIAGNOSTIC_IGNORE_FLOAT_EQUAL
+  return cmp(ct_lhs.numerical_value_ref_in(ct::unit), ct_rhs.numerical_value_ref_in(ct::unit));
+  MP_UNITS_DIAGNOSTIC_POP
+}
+
 template<typename Q1, typename Q2, typename Cmp>
 [[nodiscard]] constexpr auto compare_in_common_type(const Q1& lhs, const Q2& rhs, Cmp cmp)
 {
   using ct = std::common_type_t<Q1, Q2>;
   using ct_rep = value_type_t<typename ct::rep>;
-  // `fallback_cmp` is a lambda so it can be invoked from either branch below — a bare fallthrough
-  // `return` after the `if constexpr` chain would trip MSVC Debug C4702 ("unreachable code") on
-  // instantiations where the optimization branch returns.
-  auto fallback_cmp = [&] {
-    const ct ct_lhs(lhs);
-    const ct ct_rhs(rhs);
-    MP_UNITS_DIAGNOSTIC_PUSH
-    MP_UNITS_DIAGNOSTIC_IGNORE_FLOAT_EQUAL
-    return cmp(ct_lhs.numerical_value_ref_in(ct::unit), ct_rhs.numerical_value_ref_in(ct::unit));
-    MP_UNITS_DIAGNOSTIC_POP
-  };
   if constexpr (!treat_as_floating_point<ct_rep> && sizeof(ct_rep) < sizeof(int128_t)) {
     // widen to a double-width integer so the unit-ratio scaling can't overflow
     using wide_t = double_width_int_for_t<ct_rep>;
@@ -324,10 +335,10 @@ template<typename Q1, typename Q2, typename Cmp>
       return cmp(scale<wide_t>(lhs_m, lhs.numerical_value_is_an_implementation_detail_),
                  scale<wide_t>(rhs_m, rhs.numerical_value_is_an_implementation_detail_));
     } else {
-      return fallback_cmp();
+      return compare_in_common_type_fallback(lhs, rhs, cmp);
     }
   } else {
-    return fallback_cmp();
+    return compare_in_common_type_fallback(lhs, rhs, cmp);
   }
 }
 
