@@ -24,7 +24,7 @@ import os
 import re
 
 from conan import ConanFile
-from conan.errors import ConanInvalidConfiguration
+from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.tools.build import can_run, default_cppstd, valid_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, load, rm
@@ -214,12 +214,30 @@ class MPUnitsConan(ConanFile):
     def _run_clang_tidy(self):
         return bool(self.conf.get("user.mp-units.analyze:clang-tidy", default=False))
 
+    # libhal fork releases are versioned `<upstream>+libhal.<N>`, e.g.
+    # `2.6.0+libhal.1`, where <upstream> is the version in src/CMakeLists.txt.
+    # Conan sorts them after <upstream> and before the next upstream patch, and
+    # version ranges include them. The release tag sets the version: the deploy
+    # passes the tag, e.g. `2.6.0+libhal.1@libhal`, as `--version`. Without one
+    # (local builds, CI check runs passing "latest"), the version is
+    # `<upstream>+libhal.0`, which sorts below every release.
     def set_version(self):
         content = load(self, os.path.join(self.recipe_folder, "src/CMakeLists.txt"))
-        version = re.search(
-            r"project\([^\)]+VERSION (\d+\.\d+\.\d+)[^\)]*\)", content
-        ).group(1)
-        self.version = version.strip()
+        upstream = (
+            re.search(r"project\([^\)]+VERSION (\d+\.\d+\.\d+)[^\)]*\)", content)
+            .group(1)
+            .strip()
+        )
+        requested = str(self.version).split("@")[0] if self.version else "latest"
+        if requested == "latest":
+            self.version = f"{upstream}+libhal.0"
+        elif re.fullmatch(rf"{re.escape(upstream)}\+libhal\.\d+", requested):
+            self.version = requested
+        else:
+            raise ConanException(
+                f"Version '{requested}' must be '{upstream}+libhal.<N>', since "
+                f"src/CMakeLists.txt is at {upstream}"
+            )
 
     def config_options(self):
         for key in self._option_feature_map.keys():
