@@ -113,73 +113,73 @@ template<typename T>
   }
 
   // We only support nontrivial roots of floating point types.
-  if (!std::is_floating_point<T>::value) {
+  if constexpr (!std::is_floating_point<T>::value) {
     return std::nullopt;
+  } else {
+    MP_UNITS_DIAGNOSTIC_PUSH
+    MP_UNITS_DIAGNOSTIC_IGNORE_FLOAT_EQUAL
+    // Handle special cases of zero and one.
+    if (x == 0 || x == 1) {
+      return x;
+    }
+
+    // Handle numbers bewtween 0 and 1.
+    if (x < 1) {
+      const auto inverse_result = root(T{1} / x, n);
+      if (!inverse_result.has_value()) {
+        return std::nullopt;
+      }
+      return static_cast<T>(T{1} / inverse_result.value());
+    }
+
+    //
+    // At this point, error conditions are finished, and we can proceed with the "core" algorithm.
+    //
+
+    // Always use `long double` for intermediate computations.  We don't ever expect people to be
+    // calling this at runtime, so we want maximum accuracy.
+    long double xld = static_cast<long double>(x);
+    long double lo = 1.0;
+    long double hi = xld;
+
+    // Do a binary search to find the closest value such that `checked_int_pow` recovers the input.
+    //
+    // Because we know `n > 1`, and `x > 1`, and x^n is monotonically increasing, we know that
+    // `checked_int_pow(lo, n) < x < checked_int_pow(hi, n)`.  We will preserve this as an
+    // invariant.
+    while (lo < hi) {
+      long double mid = lo + (hi - lo) / 2;
+
+      auto result = checked_int_pow(mid, n);
+
+      if (!result.has_value()) {
+        return std::nullopt;
+      }
+
+      // Early return if we get lucky with an exact answer.
+      if (result.value() == xld) {
+        return static_cast<T>(mid);
+      }
+
+      // Check for stagnation.
+      if (mid == lo || mid == hi) {
+        break;
+      }
+
+      // Preserve the invariant that `checked_int_pow(lo, n) < x < checked_int_pow(hi, n)`.
+      if (result.value() < xld) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    MP_UNITS_DIAGNOSTIC_POP
+
+    // Pick whichever one gets closer to the target.
+    const auto lo_diff = xld - checked_int_pow(lo, n).value();
+    const auto hi_diff = checked_int_pow(hi, n).value() - xld;
+    return static_cast<T>(lo_diff < hi_diff ? lo : hi);
   }
-
-  MP_UNITS_DIAGNOSTIC_PUSH
-  MP_UNITS_DIAGNOSTIC_IGNORE_FLOAT_EQUAL
-  // Handle special cases of zero and one.
-  if (x == 0 || x == 1) {
-    return x;
-  }
-
-  // Handle numbers bewtween 0 and 1.
-  if (x < 1) {
-    const auto inverse_result = root(T{1} / x, n);
-    if (!inverse_result.has_value()) {
-      return std::nullopt;
-    }
-    return static_cast<T>(T{1} / inverse_result.value());
-  }
-
-  //
-  // At this point, error conditions are finished, and we can proceed with the "core" algorithm.
-  //
-
-  // Always use `long double` for intermediate computations.  We don't ever expect people to be
-  // calling this at runtime, so we want maximum accuracy.
-  long double xld = static_cast<long double>(x);
-  long double lo = 1.0;
-  long double hi = xld;
-
-  // Do a binary search to find the closest value such that `checked_int_pow` recovers the input.
-  //
-  // Because we know `n > 1`, and `x > 1`, and x^n is monotonically increasing, we know that
-  // `checked_int_pow(lo, n) < x < checked_int_pow(hi, n)`.  We will preserve this as an
-  // invariant.
-  while (lo < hi) {
-    long double mid = lo + (hi - lo) / 2;
-
-    auto result = checked_int_pow(mid, n);
-
-    if (!result.has_value()) {
-      return std::nullopt;
-    }
-
-    // Early return if we get lucky with an exact answer.
-    if (result.value() == xld) {
-      return static_cast<T>(mid);
-    }
-
-    // Check for stagnation.
-    if (mid == lo || mid == hi) {
-      break;
-    }
-
-    // Preserve the invariant that `checked_int_pow(lo, n) < x < checked_int_pow(hi, n)`.
-    if (result.value() < xld) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-  MP_UNITS_DIAGNOSTIC_POP
-
-  // Pick whichever one gets closer to the target.
-  const auto lo_diff = xld - checked_int_pow(lo, n).value();
-  const auto hi_diff = checked_int_pow(hi, n).value() - xld;
-  return static_cast<T>(lo_diff < hi_diff ? lo : hi);
 }
 
 // A converter for the value member variable of magnitude (below).
