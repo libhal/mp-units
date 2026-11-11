@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <mp-units/bits/constexpr_math.h>
 #include <mp-units/bits/double_width_int.h>
 #ifdef MP_UNITS_IMPORT_STD
 import std;
@@ -142,5 +143,10 @@ static_assert(static_cast<u32x2>(i32x2{-1, ~std::uint32_t{0}}) == u32x2{~std::ui
 static_assert(static_cast<long double>(u128{0, 12345}) == 12345.0L);
 static_assert(static_cast<long double>(i128{0, 1}) == 1.0L);
 static_assert(static_cast<long double>(-i128{0, 1}) == -1.0L);
+
+// root() supports only floating-point types, but must still compile for a double_width_int: on
+// platforms without __int128, unit conversions of 64-bit integers instantiate it with one.
+static_assert(!detail::root(u128{0, 4}, 2).has_value());
+static_assert(detail::root(u128{0, 4}, 1) == u128{0, 4});
 
 }  // namespace
